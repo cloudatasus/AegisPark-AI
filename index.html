@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>🅿️ AegisPark AI - 智慧停車場動態定價大腦</title>
+    <style>
+        :root {
+            --bg-main: #020617;
+            --bg-card: #0f172a;
+            --bg-side: #0b0f19;
+            --accent: #3b82f6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #64748b;
+            --border: #1e293b;
+        }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg-main); color: var(--text-main); margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        .top-nav { background: var(--bg-side); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0.8rem 2rem; gap: 1rem; flex-shrink: 0; overflow-x: auto; }
+        .brand-zone { display: flex; align-items: center; gap: 0.6rem; margin-right: 1.5rem; white-space: nowrap; }
+        .brand-zone h1 { margin: 0; font-size: 1.2rem; font-weight: 800; color: white; }
+        .slide-nav-list { display: flex; gap: 0.5rem; align-items: center; }
+        .nav-item { background: transparent; color: var(--text-muted); border: 1px solid transparent; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; text-align: center; font-weight: 600; font-size: 0.8rem; transition: all 0.2s ease; white-space: nowrap; }
+        .nav-item:hover { background: #131b2e; color: var(--text-main); }
+        .nav-item.active-nav { background: #1e293b; color: #38bdf8; border-color: #334155; }
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .top-bar { height: 65px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; background: #070a13; }
+        .top-bar-title { font-weight: 800; font-size: 1.1rem; color: white; }
+        .top-bar .tag { font-size: 0.75rem; color: var(--accent); font-weight: 600; }
+        .viewport { flex: 1; padding: 2.5rem; overflow-y: auto; box-sizing: border-box; }
+        .slide-view { display: none; animation: fadeIn 0.4s ease forwards; }
+        .slide-view.active-view { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .slide-view h2 { margin-top: 0; font-size: 1.7rem; font-weight: 800; color: white; margin-bottom: 0.8rem; }
+        .slide-view .subtitle { color: #94a3b8; font-size: 1.15rem; margin-bottom: 1.8rem; max-width: 850px; }
+        .tech-points { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; }
+        .tech-point { background: var(--bg-main); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; transition: all 0.3s ease; }
+        .tech-point:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); border-color: #334155; }
+        .tech-point h5 { margin: 0 0 0.4rem 0; color: #818cf8; font-size: 0.95rem; }
+        .tech-point p { margin: 0; color: #94a3b8; font-size: 0.9rem; line-height: 1.5; }
+        .nav-item { transition: all 0.2s ease; }
+        .nav-item:hover { transform: translateY(-1px); }
+    </style>
+</head>
+<body>
+    <div class="top-nav">
+        <div class="brand-zone"><h1>🅿️ AegisPark AI</h1></div>
+        <div class="slide-nav-list">
+            <button class="nav-item active-nav" onclick="switchSlide(0)">摘要</button>
+            <button class="nav-item" onclick="switchSlide(1)">痛點</button>
+            <button class="nav-item" onclick="switchSlide(2)">爽點</button>
+            <button class="nav-item" onclick="switchSlide(3)">技術架構</button>
+            <button class="nav-item" onclick="switchSlide(4)">防禦防線</button>
+            <button class="nav-item" onclick="switchSlide(5)">應用場景</button>
+            <button class="nav-item" onclick="switchSlide(6)">PoC Demo</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="top-bar-title" id="top-title">01 . 項目摘要</div>
+            <div class="tag">AGENTIC AI BLACKHATHON 2026</div>
+        </div>
+
+        <div class="viewport">
+            <!-- Slide 0: 摘要 -->
+            <div class="slide-view active-view" id="slide-0">
+                <h2>AegisPark AI —— 從「固定費率」到「智慧動態定價」的停車場營收大腦</h2>
+                <p class="subtitle">過去的思維：固定費率 → 尖峰爆滿拒客 → 離峰空蕩浪費（營收天花板被鎖死）。<br>我們的 Agentic 思維：Agent 感知供需 → 動態推演費率曲線 → 場站管理者一鍵審批上線（營收極大化 + 車流疏導）。</p>
+
+                <div style="background:linear-gradient(135deg,#0f172a,#1e1b4b);border:1px solid #334155;border-radius:16px;padding:2rem;margin-bottom:1.5rem;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+                        <div>
+                            <div style="color:#fca5a5;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.8rem;">❌ 傳統固定費率</div>
+                            <div style="display:flex;flex-direction:column;gap:0.6rem;">
+                                <div style="background:#1c1017;border:1px solid #7f1d1d;border-radius:8px;padding:0.8rem;"><span style="color:#fca5a5;font-weight:600;">尖峰時段</span><span style="color:#94a3b8;font-size:0.85rem;margin-left:0.5rem;">一位難求，車流壅塞 30+ 分鐘</span></div>
+                                <div style="background:#1c1017;border:1px solid #7f1d1d;border-radius:8px;padding:0.8rem;"><span style="color:#fca5a5;font-weight:600;">離峰時段</span><span style="color:#94a3b8;font-size:0.85rem;margin-left:0.5rem;">大量閒置，折舊照付，營收歸零</span></div>
+                                <div style="background:#1c1017;border:1px solid #7f1d1d;border-radius:8px;padding:0.8rem;"><span style="color:#fca5a5;font-weight:600;">定價策略</span><span style="color:#94a3b8;font-size:0.85rem;margin-left:0.5rem;">憑經驗手動調，錯過時間窗口</span></div>
+                                <div style="background:#1c1017;border:1px solid #7f1d1d;border-radius:8px;padding:0.8rem;"><span style="color:#fca5a5;font-weight:600;">顧客體驗</span><span style="color:#94a3b8;font-size:0.85rem;margin-left:0.5rem;">找不到位、費率不透明、怨聲載道</span></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="color:#6ee7b7;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.8rem;">✓ AegisPark AI</div>
+                            <div style="display:flex;flex-direction:column;gap:0.6rem;">
+                                <div style="background:#0f2920;border:1px solid #065f46;border-radius:8px;padding:0.8rem;"><span style="color:#6ee7b7;font-weight:600;">尖峰時段</span><span style="color:#94a3b8;font-size:0.85rem;margin-left:0.5rem;">溢價捕捉 + 車流分散引導</span></div>
+                                <div style="background:#0f2920;border:1px solid #065f46;border-radius:8px;padding:0.8rem;"><span style="color:#6ee7b7;font-weight:600;">離峰時段</span><span style="color:#94a3b8;font-size:0.85rem;margin-left:0.5rem;">折扣吸引增量車流，填滿閒置</span></div>
+                                <div style="background:#0f2920;border:1px solid #065f46;border-radius:8px;padding:0.8rem;"><span style="color:#6ee7b7;font-weight:600;">定價策略</span><span style="color:#94a3b8;font-size:0.85rem;margin-left:0.5rem;">AI 即時推演，管理者一鍵審批</span></div>
+                                <div style="background:#0f2920;border:1px solid #065f46;border-radius:8px;padding:0.8rem;"><span style="color:#6ee7b7;font-weight:600;">顧客體驗</span><span style="color:#94a3b8;font-size:0.85rem;margin-left:0.5rem;">早鳥預約、即時導引、費率透明</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align:center;color:#64748b;font-size:0.8rem;">底層框架可無縫複製至商場、醫院、機場、智慧城市等所有停車場景</div>
+            </div>
+
+            <!-- Slide 1: 痛點 -->
+            <div class="slide-view" id="slide-1">
+                <h2>行業結構痛點：為什麼停車場持續失血？</h2>
+                <p class="subtitle">營收鎖死、車流壅塞、決策靠猜——三重結構性困境。</p>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2rem;">
+                    <div style="background:linear-gradient(180deg,#1c1017,#0f0a0d);border:1px solid #7f1d1d;border-radius:14px;padding:1.4rem;transition:all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                        <div style="font-size:1.5rem;margin-bottom:0.3rem;">📉</div>
+                        <div style="color:#fca5a5;font-weight:700;font-size:1.05rem;margin-bottom:0.5rem;">營收天花板被鎖死</div>
+                        <p style="color:#cbd5e1;font-size:0.9rem;line-height:1.6;margin:0;">固定費率無法反映真實供需，尖峰「滿場拒客」等於白白讓出溢價空間；離峰空位閒置，折舊照付。</p>
+                        <div style="margin-top:0.6rem;color:#f59e0b;font-size:0.82rem;font-weight:600;">📊 離峰利用率僅 23%</div>
+                    </div>
+                    <div style="background:linear-gradient(180deg,#1c1017,#0f0a0d);border:1px solid #7f1d1d;border-radius:14px;padding:1.4rem;transition:all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                        <div style="font-size:1.5rem;margin-bottom:0.3rem;">🚗</div>
+                        <div style="color:#fca5a5;font-weight:700;font-size:1.05rem;margin-bottom:0.5rem;">車流壅塞與體驗崩壞</div>
+                        <p style="color:#cbd5e1;font-size:0.9rem;line-height:1.6;margin:0;">大型活動期間缺乏價格引導，車流集中湧入，平均找位 <strong>30+ 分鐘</strong>，大量客訴與負評。</p>
+                        <div style="margin-top:0.6rem;color:#f59e0b;font-size:0.82rem;font-weight:600;">📊 活動日客訴量 5 倍</div>
+                    </div>
+                    <div style="background:linear-gradient(180deg,#1c1017,#0f0a0d);border:1px solid #7f1d1d;border-radius:14px;padding:1.4rem;transition:all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                        <div style="font-size:1.5rem;margin-bottom:0.3rem;">🎲</div>
+                        <div style="color:#fca5a5;font-weight:700;font-size:1.05rem;margin-bottom:0.5rem;">決策靠直覺而非數據</div>
+                        <p style="color:#cbd5e1;font-size:0.9rem;line-height:1.6;margin:0;">管理者憑「經驗感覺」手動調費率，缺乏科學依據，錯過最佳定價窗口或幅度失當。</p>
+                        <div style="margin-top:0.6rem;color:#f59e0b;font-size:0.82rem;font-weight:600;">📊 最佳窗口命中率 < 15%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: 爽點 -->
+            <div class="slide-view" id="slide-2">
+                <h2>AegisPark AI 如何創造價值？</h2>
+                <p class="subtitle">智能感知 → 費率推演 → 場站管理者審批 → 一鍵上線。</p>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2rem;">
+                    <div style="background:linear-gradient(180deg,#0f2920,#071a14);border:1px solid #065f46;border-radius:14px;padding:1.4rem;transition:all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                        <div style="font-size:1.5rem;margin-bottom:0.3rem;">💰</div>
+                        <div style="color:#6ee7b7;font-weight:700;font-size:1.05rem;margin-bottom:0.5rem;">營收極大化（多賺）</div>
+                        <p style="color:#cbd5e1;font-size:0.9rem;line-height:1.6;margin:0;">即時供需推演最佳費率曲線，尖峰捕捉溢價、離峰吸引增量車流。</p>
+                        <div style="margin-top:0.6rem;color:#10b981;font-size:0.85rem;font-weight:700;">整體營收 +15%~35%</div>
+                    </div>
+                    <div style="background:linear-gradient(180deg,#0f2920,#071a14);border:1px solid #065f46;border-radius:14px;padding:1.4rem;transition:all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                        <div style="font-size:1.5rem;margin-bottom:0.3rem;">🚦</div>
+                        <div style="color:#6ee7b7;font-weight:700;font-size:1.05rem;margin-bottom:0.5rem;">車流智慧疏導（少塞）</div>
+                        <p style="color:#cbd5e1;font-size:0.9rem;line-height:1.6;margin:0;">離峰折扣 + 早鳥預售引導車主錯峰停車，降低尖峰壅塞率。</p>
+                        <div style="margin-top:0.6rem;color:#10b981;font-size:0.85rem;font-weight:700;">壅塞率降低 40%</div>
+                    </div>
+                    <div style="background:linear-gradient(180deg,#0f2920,#071a14);border:1px solid #065f46;border-radius:14px;padding:1.4rem;transition:all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                        <div style="font-size:1.5rem;margin-bottom:0.3rem;">⚡</div>
+                        <div style="color:#6ee7b7;font-weight:700;font-size:1.05rem;margin-bottom:0.5rem;">一鍵決策（省力）</div>
+                        <p style="color:#cbd5e1;font-size:0.9rem;line-height:1.6;margin:0;">無需逐格逐時手動調價，系統自動生成方案推播至控制台，一鍵審批即上線。</p>
+                        <div style="margin-top:0.6rem;color:#10b981;font-size:0.85rem;font-weight:700;">決策時間：2hr → 30sec</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3: 技術架構 -->
+            <div class="slide-view" id="slide-3">
+                <h2>技術實現：Multi-Agent 動態定價閉環</h2>
+                <p class="subtitle">以 LangGraph Multi-Agent 為核心，融合 IoT 感測、活動日曆、氣象與歷史數據進行費率推演。</p>
+
+                <div style="background:linear-gradient(135deg,#0f172a,#1e1b4b);border:1px solid #334155;border-radius:16px;padding:2rem;margin-bottom:1.5rem;">
+                    <div style="text-align:center;margin-bottom:0.5rem;font-size:0.7rem;color:#64748b;text-transform:uppercase;letter-spacing:0.1em;">LangGraph Multi-Agent 協作網絡</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+                        <div style="background:linear-gradient(180deg,#1e3a5f,#0f2942);border:1px solid #2563eb;border-radius:12px;padding:1.2rem;text-align:center;">
+                            <div style="font-size:1.8rem;margin-bottom:0.4rem;">📡</div>
+                            <div style="color:#60a5fa;font-weight:700;font-size:0.85rem;">場域供需感知 Agent</div>
+                            <div style="color:#94a3b8;font-size:0.75rem;margin-top:0.3rem;">IoT 車位 / 活動日曆 / 天氣</div>
+                        </div>
+                        <div style="background:linear-gradient(180deg,#1a3d2e,#0f2920);border:1px solid #10b981;border-radius:12px;padding:1.2rem;text-align:center;">
+                            <div style="font-size:1.8rem;margin-bottom:0.4rem;">⚡</div>
+                            <div style="color:#6ee7b7;font-weight:700;font-size:0.85rem;">動態定價策略 Agent</div>
+                            <div style="color:#94a3b8;font-size:0.75rem;margin-top:0.3rem;">費率曲線生成 / 多情境模擬</div>
+                        </div>
+                        <div style="background:linear-gradient(180deg,#2d1b4e,#1a0f33);border:1px solid #a78bfa;border-radius:12px;padding:1.2rem;text-align:center;">
+                            <div style="font-size:1.8rem;margin-bottom:0.4rem;">📊</div>
+                            <div style="color:#c4b5fd;font-weight:700;font-size:0.85rem;">營收洞察與擴展 Agent</div>
+                            <div style="color:#94a3b8;font-size:0.75rem;margin-top:0.3rem;">歷史反思 / 競品比對 / 擴展</div>
+                        </div>
+                    </div>
+                    <div style="text-align:center;color:#475569;font-size:1.2rem;margin-bottom:0.3rem;">▼ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ▼ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ▼</div>
+                    <div style="text-align:center;background:#1e293b;border:1px dashed #475569;border-radius:8px;padding:0.5rem;margin-bottom:0.8rem;color:#94a3b8;font-size:0.75rem;font-weight:600;">MCP 協議層 — 數據源完全解耦（IoT / 售票 / 氣象 / 費率系統）</div>
+                    <div style="text-align:center;color:#475569;font-size:1.2rem;margin-bottom:0.3rem;">▼ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ▼ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ▼</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+                        <div style="background:#020617;border:1px solid #1e293b;border-radius:10px;padding:1rem;text-align:center;">
+                            <div style="color:#f59e0b;font-weight:700;font-size:0.8rem;">MCP Server 1</div>
+                            <div style="color:white;font-size:0.85rem;font-weight:600;margin:0.3rem 0;">IoT 感測器 / 活動 API</div>
+                            <div style="color:#64748b;font-size:0.72rem;">即時車位 + 事件偵測</div>
+                        </div>
+                        <div style="background:#020617;border:1px solid #1e293b;border-radius:10px;padding:1rem;text-align:center;">
+                            <div style="color:#f59e0b;font-weight:700;font-size:0.8rem;">MCP Server 2</div>
+                            <div style="color:white;font-size:0.85rem;font-weight:600;margin:0.3rem 0;">費率系統 / 推播 API</div>
+                            <div style="color:#64748b;font-size:0.72rem;">電子看板更新 + LINE 通知</div>
+                        </div>
+                        <div style="background:#020617;border:1px solid #1e293b;border-radius:10px;padding:1rem;text-align:center;">
+                            <div style="color:#f59e0b;font-weight:700;font-size:0.8rem;">MCP Server 3</div>
+                            <div style="color:white;font-size:0.85rem;font-weight:600;margin:0.3rem 0;">歷史資料 / RAG 記憶</div>
+                            <div style="color:#64748b;font-size:0.72rem;">營收分析 + 策略記憶庫</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tech-points">
+                    <div class="tech-point">
+                        <h5>IoT + 活動日曆即時融合</h5>
+                        <p>車位感測器每 30 秒回報佔用率，串接 KKTIX/ibon 售票平台預測人流，氣象 API 判斷天氣對駕車意願影響。</p>
+                    </div>
+                    <div class="tech-point">
+                        <h5>強化學習費率推演</h5>
+                        <p>RL 模型在多情境下推演最佳費率曲線（早鳥、尖峰、疏導），歷史反饋持續優化定價精準度。</p>
+                    </div>
+                    <div class="tech-point">
+                        <h5>Human-in-the-Loop</h5>
+                        <p>所有費率方案僅為「推薦」，場站管理者審批後才會更新電子看板與推播車主通知，杜絕黑箱漲價。</p>
+                    </div>
+                    <div class="tech-point">
+                        <h5>RAG 營收記憶庫</h5>
+                        <p>每次定價執行結果自動存入向量記憶庫，下次類似事件優先檢索歷史最佳策略，越用越精準。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: 防禦防線 -->
+            <div class="slide-view" id="slide-4">
+                <h2>企業級防禦防線</h2>
+                <p class="subtitle">停車場涉及車牌個資與費率公正性——資安與合規是落地關鍵。</p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;">
+                    <div style="background:linear-gradient(180deg,#1a1025,#0f0a18);border:1px solid #6d28d9;border-radius:14px;padding:1.5rem;transition:all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                        <div style="font-size:1.5rem;margin-bottom:0.4rem;">🔒</div>
+                        <div style="color:#c4b5fd;font-weight:700;font-size:1.0rem;margin-bottom:0.5rem;">本地化部署 + 車牌隱私</div>
+                        <ul style="color:#94a3b8;font-size:0.85rem;line-height:1.8;padding-left:1rem;margin:0;">
+                            <li>支持 100% On-Premise，營收數據不上雲</li>
+                            <li>車牌即時雜湊化（Hashing），不儲存原始車牌</li>
+                            <li>符合個資法，支持刪除權（Right to Erasure）</li>
+                        </ul>
+                    </div>
+                    <div style="background:linear-gradient(180deg,#1a1025,#0f0a18);border:1px solid #6d28d9;border-radius:14px;padding:1.5rem;transition:all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                        <div style="font-size:1.5rem;margin-bottom:0.4rem;">🛑</div>
+                        <div style="color:#c4b5fd;font-weight:700;font-size:1.0rem;margin-bottom:0.5rem;">費率熔斷與權限控管</div>
+                        <ul style="color:#94a3b8;font-size:0.85rem;line-height:1.8;padding-left:1rem;margin:0;">
+                            <li>硬性上限：費率不超過主管機關公告天花板</li>
+                            <li>硬性下限：不低於營運成本底線</li>
+                            <li>Agent 無權自主執行，管理者審批才上線</li>
+                        </ul>
+                    </div>
+                    <div style="background:linear-gradient(180deg,#1a1025,#0f0a18);border:1px solid #6d28d9;border-radius:14px;padding:1.5rem;transition:all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                        <div style="font-size:1.5rem;margin-bottom:0.4rem;">🧱</div>
+                        <div style="color:#c4b5fd;font-weight:700;font-size:1.0rem;margin-bottom:0.5rem;">Prompt Injection 防禦</div>
+                        <ul style="color:#94a3b8;font-size:0.85rem;line-height:1.8;padding-left:1rem;margin:0;">
+                            <li>Llama Guard 護欄攔截惡意輸入</li>
+                            <li>防止偽造活動資訊誘導異常費率</li>
+                            <li>Agent 輸出偏離歷史分佈則自動凍結</li>
+                        </ul>
+                    </div>
+                    <div style="background:linear-gradient(180deg,#1a1025,#0f0a18);border:1px solid #6d28d9;border-radius:14px;padding:1.5rem;transition:all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                        <div style="font-size:1.5rem;margin-bottom:0.4rem;">📋</div>
+                        <div style="color:#c4b5fd;font-weight:700;font-size:1.0rem;margin-bottom:0.5rem;">合規與公平定價</div>
+                        <ul style="color:#94a3b8;font-size:0.85rem;line-height:1.8;padding-left:1rem;margin:0;">
+                            <li>費率變動全程留存稽核軌跡</li>
+                            <li>公開費率邏輯，消費者可查詢計價依據</li>
+                            <li>避免歧視性定價，確保公平性</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5: 應用場景 -->
+            <div class="slide-view" id="slide-5">
+                <h2>規模化商業應用：跨場域落地場景</h2>
+                <p class="subtitle">演唱會場館只是 PoC。核心架構適用於所有「有時段供需波動」的停車場景。</p>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2rem;">
+                    <div style="background:linear-gradient(180deg,#1e293b,#0f172a);border:1px solid #334155;border-radius:14px;padding:1.5rem;transition:all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                        <div style="font-size:1.5rem;margin-bottom:0.4rem;">🏟️</div>
+                        <div style="color:#f0abfc;font-weight:700;font-size:1.05rem;">演唱會/球賽場館</div>
+                        <p style="color:#cbd5e1;font-size:0.92rem;line-height:1.6;margin:0.5rem 0 0 0;">活動前早鳥 → 活動中溢價 → 散場疏導折扣<br>極端供需波動，動態定價效益最大</p>
+                    </div>
+                    <div style="background:linear-gradient(180deg,#1e293b,#0f172a);border:1px solid #334155;border-radius:14px;padding:1.5rem;transition:all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                        <div style="font-size:1.5rem;margin-bottom:0.4rem;">🏥</div>
+                        <div style="color:#fbbf24;font-weight:700;font-size:1.05rem;">醫院停車場</div>
+                        <p style="color:#cbd5e1;font-size:0.92rem;line-height:1.6;margin:0.5rem 0 0 0;">門診時段預約車位 + 探病時段彈性費率<br>降低家屬找位焦慮，提升醫療體驗</p>
+                    </div>
+                    <div style="background:linear-gradient(180deg,#1e293b,#0f172a);border:1px solid #334155;border-radius:14px;padding:1.5rem;transition:all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                        <div style="font-size:1.5rem;margin-bottom:0.4rem;">🛫</div>
+                        <div style="color:#60a5fa;font-weight:700;font-size:1.05rem;">機場停車場</div>
+                        <p style="color:#cbd5e1;font-size:0.92rem;line-height:1.6;margin:0.5rem 0 0 0;">航班到港波動定價 + 長期停車折扣<br>紅眼航班到港離峰吸引，連假尖峰控流</p>
+                    </div>
+                    <div style="background:linear-gradient(180deg,#1e293b,#0f172a);border:1px solid #334155;border-radius:14px;padding:1.5rem;transition:all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                        <div style="font-size:1.5rem;margin-bottom:0.4rem;">🏬</div>
+                        <div style="color:#fb923c;font-weight:700;font-size:1.05rem;">百貨商場</div>
+                        <p style="color:#cbd5e1;font-size:0.92rem;line-height:1.6;margin:0.5rem 0 0 0;">週年慶/假日動態加價 + 平日折扣<br>消費滿額折抵停車費，跨業聯動</p>
+                    </div>
+                    <div style="background:linear-gradient(180deg,#1e293b,#0f172a);border:1px solid #334155;border-radius:14px;padding:1.5rem;transition:all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                        <div style="font-size:1.5rem;margin-bottom:0.4rem;">🚇</div>
+                        <div style="color:#a3e635;font-weight:700;font-size:1.05rem;">捷運站 P+R</div>
+                        <p style="color:#cbd5e1;font-size:0.92rem;line-height:1.6;margin:0.5rem 0 0 0;">通勤尖峰預約制 + 非通勤時段開放<br>鼓勵轉乘公共運輸，減少市區車流</p>
+                    </div>
+                    <div style="background:linear-gradient(180deg,#1e293b,#0f172a);border:1px solid #334155;border-radius:14px;padding:1.5rem;transition:all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+                        <div style="font-size:1.5rem;margin-bottom:0.4rem;">🏙️</div>
+                        <div style="color:#22d3ee;font-weight:700;font-size:1.05rem;">智慧城市路邊停車</div>
+                        <p style="color:#cbd5e1;font-size:0.92rem;line-height:1.6;margin:0.5rem 0 0 0;">全域路邊停車格動態調度<br>市政府合作，降低違停率 + 增加稅收</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6: PoC Demo -->
+            <div class="slide-view" id="slide-6">
+                <h2>場站管理者實時推演控制台</h2>
+                <p class="subtitle">以「演唱會/球賽場館停車場」作為 PoC，展示系統如何在活動前自動推演費率曲線，管理者審批後一鍵上線。</p>
+                <a href="demo.html" target="_blank" style="display:inline-block;margin-top:2rem;padding:1rem 2.5rem;background:linear-gradient(135deg,#2563eb,#7c3aed);color:white;font-weight:700;font-size:1.1rem;border-radius:12px;text-decoration:none;transition:all 0.3s;">
+                    🚀 開啟 PoC 互動控制台 →
+                </a>
+                <p style="color:#64748b;font-size:0.8rem;margin-top:1rem;">包含 6 種場域事件自動觸發 + Multi-Agent 費率推演 + Human-in-the-Loop 管理者審批</p>
+            </div>
+        </div>
+    </div>
+
+<script>
+const titles=["01 . 項目摘要","02 . 行業結構痛點","03 . 系統核心價值","04 . 技術架構","05 . 企業級防禦防線","06 . 跨場域商業應用","07 . PoC Demo"];
+function switchSlide(i){document.querySelectorAll('.nav-item').forEach((b,x)=>b.classList.toggle('active-nav',x===i));document.querySelectorAll('.slide-view').forEach((v,x)=>v.classList.toggle('active-view',x===i));document.getElementById('top-title').innerText=titles[i];}
+</script>
+</body>
+</html>

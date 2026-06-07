@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>🅿️ AegisPark AI — PoC 控制台</title>
+<style>
+:root{--bg:#020617;--card:#0f172a;--border:#1e293b;--accent:#3b82f6;--success:#10b981;--danger:#ef4444;--warn:#f59e0b;--text:#f8fafc;--muted:#64748b;}
+*{box-sizing:border-box;}
+body{font-family:-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);margin:0;padding:2rem;min-height:100vh;}
+h1{font-size:1.6rem;font-weight:800;margin:0 0 0.3rem 0;}
+.sub{color:#94a3b8;font-size:0.9rem;margin-bottom:1.5rem;}
+.back{color:var(--accent);text-decoration:none;font-size:0.8rem;font-weight:600;display:inline-block;margin-bottom:1rem;}
+.back:hover{text-decoration:underline;}
+.evt-bar{display:flex;gap:0.5rem;margin-bottom:1.2rem;flex-wrap:wrap;}
+.evt-tag{font-size:0.75rem;padding:0.4rem 0.8rem;border-radius:6px;background:#1e293b;color:#64748b;border:1px solid #334155;font-weight:600;transition:all 0.3s;cursor:default;}
+.evt-tag:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.3);}
+.evt-tag.active{background:#0f2920;color:#6ee7b7;border-color:#065f46;animation:pulse 1.5s infinite;}
+.evt-tag.done{background:#334155;color:#94a3b8;border-color:#475569;text-decoration:line-through;opacity:0.6;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.4);}50%{box-shadow:0 0 12px 4px rgba(16,185,129,0.15);}}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem;}
+.status-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1rem;}
+.sbox{background:var(--bg);padding:1rem;border-radius:10px;border:1px solid var(--border);border-left:4px solid #475569;transition:all 0.3s;}
+.sbox:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,0.4);}
+.sbox.alert{border-left-color:var(--danger);animation:blink 1.5s infinite;}
+.sbox.warn{border-left-color:var(--warn);}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.6;}}
+.sbox small{color:var(--muted);font-size:0.72rem;font-weight:600;}
+.sbox span{display:block;font-size:1.2rem;font-weight:800;margin-top:0.2rem;}
+.log{background:#010205;padding:1rem;border-radius:10px;font-family:monospace;font-size:0.78rem;color:#38bdf8;height:180px;overflow-y:auto;border:1px solid var(--border);scroll-behavior:smooth;margin-bottom:1rem;}
+.actions{display:none;animation:up 0.5s ease forwards;}
+#insight{display:none;margin-top:1rem;background:linear-gradient(135deg,#1a0f33,#0f172a);border:1px solid #6d28d9;border-radius:12px;padding:1.5rem;animation:up 0.6s ease forwards;}
+@keyframes up{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.plan{background:#0f172a;border:1px solid #334155;border-radius:10px;padding:1rem;margin:0.7rem 0;opacity:0;animation:planIn 0.4s ease forwards;transition:all 0.2s;}
+.plan:nth-child(1){animation-delay:0s;}.plan:nth-child(2){animation-delay:0.15s;}.plan:nth-child(3){animation-delay:0.3s;}
+.plan:hover{transform:translateX(3px);}
+@keyframes planIn{from{opacity:0;transform:translateX(-10px);}to{opacity:1;transform:translateX(0);}}
+.plan button{transition:all 0.2s;}.plan button:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(0,0,0,0.3);}
+</style>
+</head>
+<body>
+<a href="index.html" class="back">← 返回簡報</a>
+<h1>🅿️ AegisPark AI — 場站管理者實時推演控制台</h1>
+<p class="sub">系統持續監控車位與活動資訊，事件觸發後 Multi-Agent 推演費率方案，管理者審批後一鍵上線。</p>
+
+<div class="evt-bar" id="timeline"></div>
+
+<div class="panel">
+    <div class="status-row">
+        <div class="sbox" id="box-occ"><small>[IoT] 即時佔用率</small><span id="txt-occ">42%</span></div>
+        <div class="sbox" id="box-rate"><small>[費率] 目前費率</small><span id="txt-rate">$40/hr</span></div>
+        <div class="sbox" id="box-evt"><small>[活動] 場域事件</small><span id="txt-evt">無活動</span></div>
+        <div class="sbox" id="box-mem"><small>[RAG] 策略記憶庫</small><span id="txt-mem">已就緒</span></div>
+    </div>
+    <div class="log" id="log">[System] AegisPark AI 已啟動，場域監控中...</div>
+    <div class="actions" id="acts"><h4 id="act-title" style="margin:0 0 0.5rem 0;color:white;"></h4><div id="plans"></div></div>
+    <div id="insight"><div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.8rem;"><span style="font-size:1.3rem;">📊</span><div><div style="color:#c4b5fd;font-weight:700;font-size:0.9rem;">營收洞察 Agent — 歷史反思報告</div><div style="color:#64748b;font-size:0.72rem;">6 場活動定價回顧 → Reflection → 最佳策略提煉</div></div></div><div id="insight-content"></div></div>
+</div>
+
+<script>
+const log=document.getElementById('log'),txtOcc=document.getElementById('txt-occ'),txtRate=document.getElementById('txt-rate'),txtEvt=document.getElementById('txt-evt'),txtMem=document.getElementById('txt-mem'),boxOcc=document.getElementById('box-occ'),boxEvt=document.getElementById('box-evt'),acts=document.getElementById('acts'),actTitle=document.getElementById('act-title'),plans=document.getElementById('plans');
+let interval=null,idx=0,triggered=false,evtIdx=0;
+
+const mLogs=["[IoT] 車位佔用率 42%（210/500），正常","[活動] 未來 4hr 無排程活動","[氣象] 晴，28°C，駕車意願正常","[IoT] B2 區 3 格故障，已通報維修","[費率] $40/hr 運行中，營收 $12,400/日","[RAG] 策略記憶庫 OK，23 筆歷史","[IoT] 車位佔用率 45%（225/500）","[競品] 周邊停車場費率無變動","[IoT] 入場車流 18 輛/hr（正常）","[氣象] 無降雨預報"];
+
+const events=[
+{tag:"🎤 演唱會 2hr 後",trigger:"🎤 [活動 API] 偵測到：五月天演唱會 2hr 後開場，預計 12,000 人次！",escalate:"[場域感知 Agent] 高需求事件觸發！移交定價 Agent...<br>[定價策略 Agent] 推演 3 套費率曲線：",occ:"42%→預估98%",rate:"$40/hr ⚠️",evt:"🎤 五月天 2hr",mem:"🔍 3 筆相似",title:"🎤 演唱會動態定價",plans:[{n:"方案 A：階梯式溢價",d:"開場前 2hr $60/hr → 開場後 $120/hr → 散場 $20/hr 疏導<br><em>預估營收 +42%，車流分散 35%</em>",r:"推薦",c:"#10b981"},{n:"方案 B：早鳥預售鎖位",d:"提前 24hr 開放 APP 預約 $50 固定價（限 200 位）<br><em>提前鎖定 40% 車位，降低現場混亂</em>",r:"低風險",c:"#3b82f6"},{n:"方案 C：全程浮動",d:"每 15 分鐘依剩餘車位即時調整 $40~$150<br><em>最大化營收 +55%，但體驗風險較高</em>",r:"高報酬/高風險",c:"#f59e0b"}]},
+{tag:"🌧️ 暴雨來襲",trigger:"🌧️ [氣象 API] 未來 3hr 豪大雨特報！駕車需求預估 +60%",escalate:"[場域感知 Agent] 天氣驅動需求上升<br>[定價策略 Agent] 天氣加權方案：",occ:"42%→預估85%",rate:"$40/hr",evt:"🌧️ 豪雨 3hr",mem:"🔍 5 筆雨天",title:"🌧️ 暴雨需求激增",plans:[{n:"方案 A：溫和加價",d:"$40→$55/hr（+37%），搭配 APP 推播「室內有位」<br><em>營收 +28%，吸引原本等雨停的車主</em>",r:"推薦",c:"#10b981"},{n:"方案 B：維持原價 + 導流",d:"維持 $40，但推播引導至 B3 空區<br><em>體驗優先，營收持平</em>",r:"保守",c:"#3b82f6"},{n:"方案 C：短時停車優惠",d:"前 30 分鐘 $10，鼓勵短停快走提高周轉<br><em>周轉率 +50%，日營收 +18%</em>",r:"創新",c:"#f59e0b"}]},
+{tag:"⚽ 球賽散場",trigger:"⚽ [IoT] 佔用率 97% → 球賽結束！預計 20 分鐘內 3,000 車離場",escalate:"[場域感知 Agent] 散場疏導模式啟動<br>[定價策略 Agent] 疏導費率方案：",occ:"97%→快速下降",rate:"$100/hr（活動價）",evt:"⚽ 散場中",mem:"🔍 2 筆散場",title:"⚽ 散場疏導定價",plans:[{n:"方案 A：階梯式降價疏導",d:"立即 $20/hr → 30 分鐘後 $10/hr → 1hr 後恢復 $40<br><em>鼓勵快速離場，壅塞時間 -45%</em>",r:"推薦",c:"#10b981"},{n:"方案 B：免費 15 分鐘",d:"散場後 15 分鐘內離場免計費<br><em>離場速度 +60%，損失 $2,400</em>",r:"激進",c:"#f59e0b"},{n:"方案 C：分區分流",d:"A 區先走（免費 10min），B 區延後（維持 $40 鼓勵留場消費）<br><em>車流分散 50%，商場餐飲 +20%</em>",r:"創新",c:"#3b82f6"}]},
+{tag:"🏪 競品降價",trigger:"🏪 [競品監控] 對面停車場降至 $25/hr，車流外流 30%！",escalate:"[營收洞察 Agent] 競爭對標偵測<br>[定價策略 Agent] 差異化反擊：",occ:"42%→28%",rate:"$40/hr",evt:"🏪 競品 $25",mem:"🔍 1 筆價格戰",title:"🏪 競品反擊策略",plans:[{n:"方案 A：加值不降價",d:"維持 $40，加送「合作商家 $50 折價券」<br><em>實質折扣但不破壞價格錨定，回流率 +35%</em>",r:"推薦",c:"#10b981"},{n:"方案 B：離峰限時對標",d:"僅離峰 10:00-16:00 降至 $28，尖峰維持 $40<br><em>搶回離峰車流，日均營收持平</em>",r:"中風險",c:"#3b82f6"},{n:"方案 C：月卡綁定",d:"推 30 天月卡 $2,500（等效 $27.7/hr/day）<br><em>鎖定長期客，LTV +3x</em>",r:"長期策略",c:"#f59e0b"}]},
+{tag:"📅 連假首日",trigger:"📅 [活動日曆] 明天是端午連假首日，歷史同期佔用率 95%+",escalate:"[場域感知 Agent] 連假模式預警<br>[定價策略 Agent] 連假費率規劃：",occ:"42%（明日預估95%）",rate:"$40/hr",evt:"📅 端午連假",mem:"🔍 4 筆連假",title:"📅 連假定價策略",plans:[{n:"方案 A：連假浮動",d:"06:00-22:00 $65/hr，22:00-06:00 $30/hr<br><em>營收 +38%，夜間吸引過夜停車</em>",r:"推薦",c:"#10b981"},{n:"方案 B：預約制限量",d:"APP 預約限 400 位（$55 鎖位費），現場 100 位浮動<br><em>減少現場排隊，體驗 +40%</em>",r:"創新",c:"#3b82f6"},{n:"方案 C：每日遞減",d:"Day1 $70 → Day2 $55 → Day3 $45<br><em>分散尾段車流，整體營收 +30%</em>",r:"實驗性",c:"#f59e0b"}]},
+{tag:"🔧 區域封閉",trigger:"🔧 [IoT] A 區 150 格因消防檢修封閉！可用車位剩 350 格",escalate:"[場域感知 Agent] 供給減少 30%！<br>[定價策略 Agent] 緊急調度方案：",occ:"42%→等效60%",rate:"$40/hr",evt:"🔧 A區封閉",mem:"🔍 1 筆維修",title:"🔧 車位減少應對",plans:[{n:"方案 A：微幅調漲 + 導流",d:"$40→$50/hr + 推播周邊合作場站（步行 3 分鐘 $35）<br><em>控制入場量，避免超載</em>",r:"推薦",c:"#10b981"},{n:"方案 B：分時限入",d:"佔用率 >85% 時暫停入場 + APP 候位通知<br><em>體驗優先，營收 -10%</em>",r:"保守",c:"#3b82f6"},{n:"方案 C：臨時合作",d:"緊急簽約對面空地臨停（$20/hr），分流 50 輛<br><em>維持服務量，成本 +$4,000/日</em>",r:"應急",c:"#f59e0b"}]}
+];
+
+const timeline=document.getElementById('timeline');
+events.forEach((e,i)=>{const d=document.createElement('div');d.className='evt-tag';d.id='tag-'+i;d.textContent=e.tag;timeline.appendChild(d);});
+
+function start(){
+    stop();triggered=false;acts.style.display="none";
+    boxOcc.classList.remove('alert','warn');boxEvt.classList.remove('alert','warn');
+    txtOcc.innerText="42%";txtRate.innerText="$40/hr";txtEvt.innerText="無活動";txtMem.innerText="已就緒";
+    log.innerHTML="[System] AegisPark AI 場域監控中...";idx=0;
+    interval=setInterval(()=>{
+        if(triggered)return;
+        const t=`<span style="color:#475569">[${new Date().toLocaleTimeString('zh-TW',{hour12:false})}]</span>`;
+        log.innerHTML+=`<br>${t} ${mLogs[idx%mLogs.length]}`;idx++;log.scrollTop=log.scrollHeight;
+        if(idx>=5&&!triggered)fire();
+    },2500);
+}
+
+function fire(){
+    if(evtIdx>=events.length){setTimeout(showInsight,2000);return;}
+    triggered=true;const e=events[evtIdx];
+    document.getElementById('tag-'+evtIdx).classList.add('active');
+    setTimeout(()=>{
+        log.innerHTML+=`<br><br><span style="color:#ef4444;font-weight:700">${e.trigger}</span>`;log.scrollTop=log.scrollHeight;
+        boxOcc.classList.add('warn');boxEvt.classList.add('alert');
+        txtOcc.innerText=e.occ;txtRate.innerText=e.rate;txtEvt.innerText=e.evt;txtMem.innerText=e.mem;
+    },1000);
+    setTimeout(()=>{log.innerHTML+=`<br><span style="color:#38bdf8">${e.escalate}</span>`;log.scrollTop=log.scrollHeight;},3500);
+    setTimeout(()=>{
+        acts.style.display="block";actTitle.innerText=e.title;
+        plans.innerHTML=e.plans.map(p=>`<div class="plan" style="border-left:4px solid ${p.c};"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;"><strong style="color:white;font-size:0.88rem;">${p.n}</strong><span style="font-size:0.68rem;padding:0.2rem 0.5rem;border-radius:4px;background:${p.c}22;color:${p.c};font-weight:600;">${p.r}</span></div><p style="margin:0;color:#cbd5e1;font-size:0.82rem;line-height:1.5;">${p.d}</p><button onclick="approve(this,'${p.n.replace(/'/g,"\\'")}')" style="margin-top:0.5rem;background:${p.c};color:white;border:none;padding:0.4rem 0.8rem;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.76rem;">核准此方案 ✓</button></div>`).join('');
+    },5500);
+}
+
+function approve(btn,name){
+    plans.querySelectorAll('button').forEach(b=>{b.disabled=true;b.style.opacity='0.3';});
+    btn.style.opacity='1';btn.innerText='⏳ 部署中...';
+    log.innerHTML+=`<br><span style="color:#10b981;font-weight:700">[Human-in-the-Loop] ✓ 管理者核准「${name}」</span>`;log.scrollTop=log.scrollHeight;
+    setTimeout(()=>{log.innerHTML+=`<br>[MCP 2] 📺 電子看板費率已更新`;log.scrollTop=log.scrollHeight;},800);
+    setTimeout(()=>{log.innerHTML+=`<br>[MCP 2] 📱 LINE/APP 推播完成`;log.scrollTop=log.scrollHeight;},1500);
+    setTimeout(()=>{log.innerHTML+=`<br>[MCP 3] 💾 寫入 RAG 策略記憶庫`;txtMem.innerText="✓ +1 筆";log.scrollTop=log.scrollHeight;},2200);
+    setTimeout(()=>{
+        log.innerHTML+=`<br><span style="color:#10b981">[System] 🚀 費率方案已上線！</span>`;btn.innerText='✅ 已上線';log.scrollTop=log.scrollHeight;
+        document.getElementById('tag-'+evtIdx).classList.replace('active','done');
+        evtIdx++;
+        if(evtIdx>=events.length)setTimeout(showInsight,3000);
+        else setTimeout(start,6000);
+    },3000);
+}
+
+function showInsight(){
+    stop();acts.style.display="none";
+    log.innerHTML+=`<br><br><span style="color:#c4b5fd;font-weight:700">[營收洞察 Agent] 6 場活動定價回顧完成，Reflection 啟動...</span>`;
+    log.innerHTML+=`<br><span style="color:#c4b5fd">[RAG] 歷史策略語意分析完成，最佳實踐提煉 ↓</span>`;
+    log.scrollTop=log.scrollHeight;txtMem.innerText="分析 6 場";
+    const h=document.getElementById('insight');h.style.display="block";
+    const hp=document.getElementById('insight-content');
+    const insights=[
+        {n:"💡 最佳早鳥比例：40%",d:"預約鎖位佔總車位 40% 時，營收與體驗達最佳平衡（實測 6 場平均）",c:"#10b981"},
+        {n:"💡 散場疏導最佳折扣：原價 ×0.25",d:"散場折扣低於 25% 原價時離場速度不再顯著提升，建議 $20-25 為甜蜜點",c:"#3b82f6"},
+        {n:"💡 跨業聯動 ROI 最高：餐飲折價券",d:"搭贈商場餐飲券的停車方案，回流率比純降價高 2.3 倍且不損價格錨定",c:"#818cf8"}
+    ];
+    hp.innerHTML=insights.map(p=>`<div class="plan" style="border-left:4px solid ${p.c};"><strong style="color:white;font-size:0.85rem;">${p.n}</strong><p style="margin:0.3rem 0 0 0;color:#cbd5e1;font-size:0.8rem;line-height:1.5;">${p.d}</p></div>`).join('');
+}
+
+function stop(){if(interval){clearInterval(interval);interval=null;}}
+start();
+</script>
+</body>
+</html>
