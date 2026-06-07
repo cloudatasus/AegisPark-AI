@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🅿️ AegisPark AI — PoC 控制台</title>
+<title>🅿️ AegisPrice AI - Park — PoC 控制台</title>
 <style>
 :root{--bg:#020617;--card:#0f172a;--border:#1e293b;--accent:#3b82f6;--success:#10b981;--danger:#ef4444;--warn:#f59e0b;--text:#f8fafc;--muted:#64748b;}
 *{box-sizing:border-box;}
@@ -53,7 +53,7 @@ body{padding:0.6rem;}
 </head>
 <body>
 <a href="index.html" class="back">← 返回簡報</a>
-<h1>🅿️ AegisPark AI — 場站管理者實時推演控制台</h1>
+<h1>🅿️ AegisPrice AI - Park — 場站管理者實時推演控制台</h1>
 <p class="sub">系統持續監控車位與活動資訊，事件觸發後 Multi-Agent 推演費率方案，管理者審批後一鍵上線。</p>
 
 <div class="evt-bar" id="timeline"></div>
@@ -65,7 +65,7 @@ body{padding:0.6rem;}
         <div class="sbox" id="box-evt"><small>[活動] 場域事件</small><span id="txt-evt">無活動</span></div>
         <div class="sbox" id="box-mem"><small>[RAG] 策略記憶庫</small><span id="txt-mem">已就緒</span></div>
     </div>
-    <div class="log" id="log">[System] AegisPark AI 已啟動，場域監控中...</div>
+    <div class="log" id="log">[System] AegisPrice AI - Park 已啟動，場域監控中...</div>
     <div class="actions" id="acts"><h4 id="act-title" style="margin:0 0 0.5rem 0;color:white;"></h4><div id="plans"></div></div>
     <div id="insight"><div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.8rem;"><span style="font-size:1.3rem;">📊</span><div><div style="color:#c4b5fd;font-weight:700;font-size:0.9rem;">營收洞察 Agent — 歷史反思報告</div><div style="color:#64748b;font-size:0.72rem;">6 場活動定價回顧 → Reflection → 最佳策略提煉</div></div></div><div id="insight-content"></div></div>
 </div>
@@ -92,7 +92,7 @@ function start(){
     stop();triggered=false;acts.style.display="none";
     boxOcc.classList.remove('alert','warn');boxEvt.classList.remove('alert','warn');
     txtOcc.innerText="42%";txtRate.innerText="$40/hr";txtEvt.innerText="無活動";txtMem.innerText="已就緒";
-    log.innerHTML="[System] AegisPark AI 場域監控中...";idx=0;
+    log.innerHTML="[System] AegisPrice AI - Park 場域監控中...";idx=0;
     interval=setInterval(()=>{
         if(triggered)return;
         const t=`<span style="color:#475569">[${new Date().toLocaleTimeString('zh-TW',{hour12:false})}]</span>`;
