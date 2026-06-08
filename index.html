@@ -323,6 +323,25 @@
                     🚀 開啟 PoC 互動控制台 →
                 </a>
                 <p style="color:#64748b;font-size:0.8rem;margin-top:1rem;">包含 6 種場域事件自動觸發 + Multi-Agent 費率推演 + Human-in-the-Loop 管理者審批</p>
+                <div style="margin-top:2rem;background:#0f172a;border:1px solid #334155;border-left:4px solid #f59e0b;border-radius:10px;padding:1rem 1.2rem;">
+                    <div style="color:#fbbf24;font-size:0.88rem;font-weight:700;margin-bottom:0.4rem;">📐 實務部署：動態定價雙層架構</div>
+                    <p style="color:#94a3b8;font-size:0.88rem;line-height:1.6;margin:0;">PoC 展示為加速演示採用即時觸發。實務部署採用<strong style="color:#cbd5e1;">雙層策略</strong>：事件層（即時）偵測活動/天氣等突發事件自動推演；基礎層（日/週）依據歷史車流模式設定常態費率曲線。兩層協作確保既能捕捉突發溢價機會，又有穩定的基礎營收模型。</p>
+                </div>
+                <div style="margin-top:1.2rem;text-align:center;">
+                    <button onclick="document.getElementById('reality-box').style.display=document.getElementById('reality-box').style.display==='none'?'block':'none'" style="background:#1e293b;color:#94a3b8;border:1px solid #334155;padding:0.5rem 1.2rem;border-radius:8px;cursor:pointer;font-size:0.75rem;font-weight:600;transition:all 0.2s;" onmouseover="this.style.color='#fbbf24';this.style.borderColor='#f59e0b'" onmouseout="this.style.color='#94a3b8';this.style.borderColor='#334155'">📐 商業化落地：困境與因應之道 ▼</button>
+                </div>
+                <div id="reality-box" style="display:none;margin-top:1rem;border:1px solid #334155;border-radius:12px;padding:1.2rem;background:#0f172a;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;">
+                        <div style="background:#1c1017;border:1px solid #7f1d1d;border-radius:8px;padding:0.7rem;"><div style="color:#fca5a5;font-weight:600;font-size:0.72rem;">❌ 場站系統老舊</div><p style="color:#64748b;font-size:0.68rem;line-height:1.5;margin:0.2rem 0 0 0;">多數停車場仍用 20 年前閘門系統，無 API 可串接。</p></div>
+                        <div style="background:#0f2920;border:1px solid #065f46;border-radius:8px;padding:0.7rem;"><div style="color:#6ee7b7;font-weight:600;font-size:0.72rem;">✅ 輕量疊加方案</div><p style="color:#64748b;font-size:0.68rem;line-height:1.5;margin:0.2rem 0 0 0;">Phase 1 僅更新電子看板+APP 通知，不動既有閘門。</p></div>
+                        <div style="background:#1c1017;border:1px solid #7f1d1d;border-radius:8px;padding:0.7rem;"><div style="color:#fca5a5;font-weight:600;font-size:0.72rem;">❌ 消費者抗拒漲價</div><p style="color:#64748b;font-size:0.68rem;line-height:1.5;margin:0.2rem 0 0 0;">動態定價 = 「AI 坑錢」，公關風險大。</p></div>
+                        <div style="background:#0f2920;border:1px solid #065f46;border-radius:8px;padding:0.7rem;"><div style="color:#6ee7b7;font-weight:600;font-size:0.72rem;">✅ 透明 + 獎勵框架</div><p style="color:#64748b;font-size:0.68rem;line-height:1.5;margin:0.2rem 0 0 0;">費率邏輯公開可查，搭配早鳥折扣讓車主感受「省錢」而非「被漲」。</p></div>
+                        <div style="background:#1c1017;border:1px solid #7f1d1d;border-radius:8px;padding:0.7rem;"><div style="color:#fca5a5;font-weight:600;font-size:0.72rem;">❌ 法規限制費率上限</div><p style="color:#64748b;font-size:0.68rem;line-height:1.5;margin:0.2rem 0 0 0;">部分縣市公告停車費率天花板，動態空間有限。</p></div>
+                        <div style="background:#0f2920;border:1px solid #065f46;border-radius:8px;padding:0.7rem;"><div style="color:#6ee7b7;font-weight:600;font-size:0.72rem;">✅ 合規內最佳化</div><p style="color:#64748b;font-size:0.68rem;line-height:1.5;margin:0.2rem 0 0 0;">在法定天花板內做離峰折扣（向下空間大），主攻填滿率而非漲價。</p></div>
+                        <div style="background:#1c1017;border:1px solid #7f1d1d;border-radius:8px;padding:0.7rem;"><div style="color:#fca5a5;font-weight:600;font-size:0.72rem;">❌ 活動資訊不即時</div><p style="color:#64748b;font-size:0.68rem;line-height:1.5;margin:0.2rem 0 0 0;">售票平台未必開放 API，臨時加場/取消難以追蹤。</p></div>
+                        <div style="background:#0f2920;border:1px solid #065f46;border-radius:8px;padding:0.7rem;"><div style="color:#6ee7b7;font-weight:600;font-size:0.72rem;">✅ 多源融合 + IoT 驗證</div><p style="color:#64748b;font-size:0.68rem;line-height:1.5;margin:0.2rem 0 0 0;">爬蟲+社群+IoT 車流即時驗證，不依賴單一數據源。</p></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
